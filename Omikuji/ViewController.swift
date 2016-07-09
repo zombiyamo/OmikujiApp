@@ -16,52 +16,64 @@ class ViewController: UIViewController {
     @IBOutlet weak var bottomLabel: UILabel!
     
     var opeNum :Int?
-    var audioPlayer :AVAudioPlayer?
+    var playerArray :[AVAudioPlayer] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         topLabel.adjustsFontSizeToFitWidth = true
         resultLabel.adjustsFontSizeToFitWidth = true
         bottomLabel.adjustsFontSizeToFitWidth = true
-        
+    }
+    
+    override func motionBegan(motion: UIEventSubtype, withEvent event: UIEvent?) {
         let sound_data = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("chicken-cry1", ofType: "mp3")!)
-        
+        var audioPlayer :AVAudioPlayer?
         do{
             audioPlayer = try AVAudioPlayer(contentsOfURL: sound_data)
         }catch _ {
             audioPlayer = nil
         }
-
-    }
-    
-    override func motionBegan(motion: UIEventSubtype, withEvent event: UIEvent?) {
+        if let audioPlayer = audioPlayer {
+            playerArray.append(audioPlayer)
+            audioPlayer.play()
+            audioPlayer.delegate = self
+        }
         topLabel.text = "明日の運勢は"
+        
         opeNum = Int(arc4random_uniform(100))
         if let opeNum = opeNum {
             switch opeNum {
             case 0:
                 resultLabel.text = "スーパー\n超ラッキー"
+                bottomLabel.text = "クマァ!?!?!?"
             case 1...4:
                 resultLabel.text = "超ラッキー"
+                bottomLabel.text = "クマァ...!!"
             case 5...19:
-                resultLabel.text = "普通より\nラッキー"
+                resultLabel.text = "ラッキー"
+                bottomLabel.text = "クマァマァ"
             case 20...39:
-                resultLabel.text = "普通"
+                resultLabel.text = "普通より\nラッキー"
+                bottomLabel.text = "クマァ"
             case 40...99:
                 resultLabel.text = "平凡"
+                bottomLabel.text = "クマ..."
             default:
                 break
             }
-        }
-        if let audioPlayer = audioPlayer {
-            audioPlayer.play()
         }
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
+
+}
+
+extension ViewController :AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(player: AVAudioPlayer, successfully flag: Bool) {
+        playerArray.removeFirst()
+    }
 
 }
 
